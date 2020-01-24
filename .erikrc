@@ -99,4 +99,5 @@ function trump() {
 # ----------------------
 # OnLoad
 # ----------------------
-echo -e "${Cyan}${date}${NC}"
+date
+echo -e "${Cyan}Keep on sharin' in the groove!${NC}"
