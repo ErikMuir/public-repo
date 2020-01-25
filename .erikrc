@@ -101,3 +101,6 @@ function trump() {
 # ----------------------
 date
 echo -e "${Cyan}Keep on sharin' in the groove!${NC}"
+if [ $PWD = "/" ]; then
+  cd ~
+fi
