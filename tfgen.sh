@@ -25,6 +25,17 @@ for segment in $raw_buckets; do
 done
 
 # validate bucket name
+function elementIn () {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
 
+elementIn $bucket_name "${all_buckets[@]}"
+if [[ $? -eq 1 ]]; then
+  echo "Could not find bucket '$bucket_name'" ; exit 1
+fi
 
-echo "${all_buckets[*]}"
+echo "Found bucket '$bucket_name'"
+
