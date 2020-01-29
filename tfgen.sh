@@ -6,8 +6,12 @@ terraform_name=$2
 
 # validate arguments
 validation_errors=""
+invalid_terraform_name='[^A-Za-z0-9_]'
 [[ -n "$bucket_name" ]] || validation_errors+="Bucket name is required. "
 [[ -n "$terraform_name" ]] || validation_errors+="Terraform name is required. "
+if [[ $terraform_name =~ $invalid_terraform_name ]] || [[ $terraform_name == _* ]]; then
+  validation_errors+="Terraform name is invalid. "
+fi
 if [[ -n "$validation_errors" ]]; then
   echo "$validation_errors" ; exit 1
 fi
