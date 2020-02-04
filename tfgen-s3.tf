@@ -60,9 +60,9 @@ for filename in *.tf; do
 done
 
 echo "[6/8] seeding configuration..."
-config_file="$terraform_name.tf"
+config_file="aws_s3_bucket.$terraform_name.tf"
 if [ -f "$config_file" ]; then
-    echo -e "${RED}Error: There is already a file called '$config_file'. Please rename it and run the command again.${NC}" ; exit 1
+    echo -e "${RED}Error: There is already a file called '$config_file'.${NC}" ; exit 1
 fi
 echo "resource \"aws_s3_bucket\" \"$terraform_name\" {}" > $config_file
 
