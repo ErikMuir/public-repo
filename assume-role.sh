@@ -1,88 +1,73 @@
 #!/bin/bash
 
-isAdmin=0
 workspace=""
 account=""
-
-RED="\e[0;31m"
-GREEN="\e[0;32m"
-NC="\e[0m"
-
-showHelp() {
-  echo "usage: assume-role [options] <workspace>"
-  echo " "
-  echo "options:"
-  echo "  -h, --help                show brief help"
-  echo "  -a, --admin               assume role as admin with full-access"
-  echo "                            (role is read-only by default)"
-  echo "workspaces:"
-  echo "  [dev|vbdev|qa|vbqa2|qc|integration|staging|prod]"
-}
-
-setAccount() {
-  case "$1" in
-    dev)
-      account="????dev????"
-      ;;
-    vbdev)
-      account="????vbdev????"
-      ;;
-    qa)
-      account="????qa????"
-      ;;
-    vbqa2)
-      account="????vbqa2????"
-      ;;
-    qc)
-      account="????qc????"
-      ;;
-    integration)
-      account="????integration????"
-      ;;
-    staging)
-      account="????staging????"
-      ;;
-    prod)
-      account="????prod????"
-      ;;
-    *)
-      echo -e "${RED}Error: Unknown workspace${NC}"
-      exit 1
-      ;;
-  esac
-}
+role="readonly"
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+NC="\033[0m"
 
 while test $# -gt 0; do
-  case "${1,,}" in
+  argument=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+  case "$argument" in
     -h|--help)
-      showHelp
+      echo "usage: assume-role [options] <workspace>"
+      echo " "
+      echo "options:"
+      echo "  -h, --help                show brief help"
+      echo "  -a, --admin               assume role as admin with full-access"
+      echo "                            (role is read-only by default)"
+      echo "workspaces:"
+      echo "  [dev|vbdev|qa|vbqa2|qc|integration|staging]"
       exit 0
       ;;
     -a|--admin)
-      isAdmin=1
+      role="admin"
       shift
       ;;
-    dev|vbdev|qa|vbqa2|qc|integration|staging|prod)
+    dev|vbdev|qa|vbqa2|qc|integration|staging)
       if [ -n "$workspace" ]; then
-        echo -e "${RED}Error: You cannot assume multiple roles${NC}"
+        echo -e "${RED}You cannot assume multiple roles${NC}"
         exit 0
       fi
-      workspace="$1"
+      workspace="$argument"
       shift
       ;;
     *)
-      [[ $1 == -* ]] && tokenType="option" || tokenType="argument"
-      echo -e "${RED}Error: Unrecognized $tokenType '$1'${NC}"
+      [[ $argument == -* ]] && tokenType="option" || tokenType="argument"
+      echo -e "${RED}Unrecognized $tokenType '$argument'${NC}"
       exit 0
       ;;
   esac
 done
 
 if [ -z "$workspace" ]; then
-  echo -e "${RED}Error: Workspace is required${NC}"
+  echo -e "${RED}Workspace is required${NC}"
   exit 0
 fi
 
-setAccount $workspace
+case "$workspace" in
+  dev|qa)
+    account="dev/qa"
+    ;;
+  vbdev)
+    account="vbdev"
+    ;;
+  vbqa2)
+    account="vbqa2"
+    ;;
+  qc)
+    account="qc"
+    ;;
+  integration|staging)
+    account="integration/staging"
+    ;;
+  *)
+    echo -e "${RED}Unknown workspace${NC}"
+    exit 1
+    ;;
+esac
 
-echo "$account"
+# export AWS_PROFILE="${account}_${role}"
+
+echo -e "${GREEN}Successfully assumed role: ${account}_${role}${NC}"
