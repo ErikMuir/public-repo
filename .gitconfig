@@ -1,0 +1,46 @@
+[user]
+	name = Erik Muir
+	email = erikdmuir@gmail.com
+[core]
+	editor = \"C:\\Users\\Erik\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe\" --wait
+	autocrlf = input
+[filter "lfs"]
+  clean = git lfs clean %f
+  smudge = git lfs smudge %f
+  required = true
+[diff]
+  tool = vscode
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
+[merge]
+  tool = vscode
+[mergetool "vscode"]
+  cmd = code --wait $MERGED
+[alias]
+	s = status -sb
+  st = status
+  co = checkout
+	dt = difftool
+	mt = mergetool
+	ec = config --global -e
+  up = !git pull --rebase
+  rm = !git ls-files --exclude-standard -o | xargs rm | git status -sb
+  resetmains = !git fetch origin master:master -f
+	resetall = !git fetch | git remote prune origin | git resetmains
+  lg = !git log --oneline --graph --decorate
+  unstage = reset -q HEAD --
+  discard = checkout --
+  uncommit = reset --mixed HEAD~
+  nevermind = !git reset --hard HEAD && git clean -d -f
+  lastsha = !git rev-parse HEAD | clip
+	alias = config --get-regexp ^alias\\.
+	delete-remote = push origin --delete 
+  delete-local = branch -D
+  details = show --stat 
+  history = log --follow --oneline
+	amend = commit --amend --no-edit
+	fp = push --force-with-lease
+	af = !git amend | git fp
+	squashup = "!f() { squashCount=$1; shift; commitMsg=$@; if ! [[ $squashCount =~ ^[0-9]+$ ]]; then echo "Squash count must be an integer."; elif [[ -z "$commitMsg" ]]; then echo "Commit message is required."; else git reset --soft HEAD~$squashCount; git commit -m \"$commitMsg\"; fi; }; f" 
+	squashdown = "!f() { squashCount=$1; if [ -z $squashCount ]; then let squashCount=0; fi; if ! [[ $squashCount =~ ^[0-9]+$ ]]; then echo "Squash count must be an integer."; exit; fi; if [ $squashCount -gt 0 ]; then echo "squashCount: $squashCount"; let squashCount=squashCount-1; echo "squashCount: $squashCount"; git reset --soft HEAD~$squashCount; fi; git commit --all --amend --no-edit; }; f"
+  
