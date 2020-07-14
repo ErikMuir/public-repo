@@ -34,6 +34,8 @@ On_White='\e[47m'       # White
 
 NC="\e[m"               # Color Reset
 ALERT=${BWhite}${On_Red} # Bold White on red background
+GREEN_CHECK="${Green}✓${NC}"
+RED_X="${Red}✘${NC}"
 
 # ----------------------
 # Git Aliases
@@ -95,6 +97,20 @@ function changeDirectory() {
 function trump() {
   curl -s https://api.whatdoestrumpthink.com/api/v1/quotes/random | jq '.message'
 }
+
+function __git_branch() {
+  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+function __last_status() {
+  [[ $? -eq 0 ]] && echo -e $GREEN_CHECK || echo -e $RED_X
+}
+
+# ----------------------
+# Prompt
+# ----------------------
+# PS1="\$(__last_status) ${BBlack}\u@\h ${Yellow}\w${Cyan}\$(__git_ps1)${NC} $ "
+PS1="\$(__last_status) ${BBlack}\w${Cyan}\$(__git_ps1)${NC} $ "
 
 # ----------------------
 # OnLoad
