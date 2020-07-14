@@ -1,0 +1,145 @@
+// To view the default settings, hold "alt" while clicking on the "Settings" button.
+// For documentation on these settings, see: https://aka.ms/terminal-documentation
+{
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "theme": "dark",
+  "confirmCloseAllTabs": false,
+  "defaultProfile": "{af617dae-c0ab-4d02-bdc4-0f3bd18de7ff}",
+  "copyOnSelect": false,
+  "copyFormatting": false,
+  "startOnUserLogin": true,
+  "profiles": {
+    "defaults": {
+      // Put settings here that you want to apply to all profiles.
+    },
+    "list": [
+      {
+        "name": "Bash",
+        "closeOnExit": true,
+        "colorScheme": "Tango Dark",
+        "commandline": "\"%PROGRAMFILES%\\git\\usr\\bin\\bash.exe\" -i -l",
+        "cursorColor": "#FFFFFF",
+        "cursorShape": "bar",
+        "fontSize": 10,
+        "historySize": 9001,
+        "icon": "%USERPROFILE%/Pictures/bash-icon.png",
+        "snapOnInput": true,
+        "startingDirectory": "%USERPROFILE%",
+        "tabTitle": "bash",
+        "suppressApplicationTitle": true,
+        "background": "#22222f",
+        "backgroundImage": "%USERPROFILE%/Pictures/Wallpaper/processing-2.gif",
+        "backgroundImageOpacity": 0.05,
+        // "useAcrylic": true,
+        "acrylicOpacity": 0.75,
+        "guid": "{af617dae-c0ab-4d02-bdc4-0f3bd18de7ff}"
+      },
+      {
+        "name": "Ubuntu",
+        "hidden": false,
+        "source": "Windows.Terminal.Wsl",
+        "fontSize": 10,
+        "tabTitle": "Ubuntu",
+        "suppressApplicationTitle": true,
+        "background": "#22222f",
+        "backgroundImage": "%USERPROFILE%/Pictures/Wallpaper/ubuntu.jpg",
+        "backgroundImageOpacity": 0.1,
+        // "useAcrylic": true,
+        "acrylicOpacity": 0.75,
+        "guid": "{c6eaf9f4-32a7-5fdc-b5cf-066e8a4b1e40}"
+      },
+      {
+        "name": "MS-DOS",
+        "colorScheme": "Retro",
+        "commandline": "cmd.exe",
+        "icon": "%USERPROFILE%/Pictures/retro-terminal.png",
+        "closeOnExit": true,
+        "cursorColor": "#FFFFFF",
+        "cursorShape": "filledBox",
+        "fontSize": 16,
+        "startingDirectory": "C:/",
+        "padding": "5, 5, 5, 5",
+        "tabTitle": "MS-DOS",
+        "fontFace": "PxPlus IBM VGA8",
+        "experimental.retroTerminalEffect": true,
+        // "useAcrylic": true,
+        // "acrylicOpacity": 0.75,
+        "guid": "{043690eb-124c-4b8f-8d27-7b484284e8f3}"
+      },
+      {
+        "name": "PowerShell",
+        "colorScheme": "Campbell Powershell",
+        "commandline": "powershell.exe",
+        "hidden": false,
+        "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}"
+      },
+      {
+        "name": "Command Prompt",
+        "commandline": "cmd.exe",
+        "hidden": false,
+        "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}"
+      },
+      {
+        "name": "Azure Cloud Shell",
+        "hidden": false,
+        "source": "Windows.Terminal.Azure",
+        "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}"
+      }
+    ]
+  },
+  // Add custom color schemes to this array.
+  // To learn more about color schemes, visit https://aka.ms/terminal-color-schemes
+  "schemes": [
+    {
+      "name": "Retro",
+      "background": "#000000",
+      "black": "#00ff00",
+      "blue": "#00ff00",
+      "brightBlack": "#00ff00",
+      "brightBlue": "#00ff00",
+      "brightCyan": "#00ff00",
+      "brightGreen": "#00ff00",
+      "brightPurple": "#00ff00",
+      "brightRed": "#00ff00",
+      "brightWhite": "#00ff00",
+      "brightYellow": "#00ff00",
+      "cyan": "#00ff00",
+      "foreground": "#00ff00",
+      "green": "#00ff00",
+      "purple": "#00ff00",
+      "red": "#00ff00",
+      "white": "#00ff00",
+      "yellow": "#00ff00"
+    }
+  ],
+  // To unbind a key combination from your defaults.json, set the command to "unbound".
+  "keybindings": [
+    {
+      "command": {
+        "action": "copy",
+        "singleLine": false
+      },
+      "keys": "ctrl+c"
+    },
+    {
+      "command": "paste",
+      "keys": "ctrl+v"
+    },
+    {
+      "command": "find",
+      "keys": "ctrl+f"
+    },
+    // Press Alt+Shift+D to open a new pane.
+    // - "split": "auto" makes this pane open in the direction that provides the most surface area.
+    // - "splitMode": "duplicate" makes the new pane use the focused pane's profile.
+    // To learn more about panes, visit https://aka.ms/terminal-panes
+    {
+      "command": {
+        "action": "splitPane",
+        "split": "auto",
+        "splitMode": "duplicate"
+      },
+      "keys": "alt+shift+d"
+    }
+  ]
+}
