@@ -110,7 +110,7 @@ function __last_status() {
 # Prompt
 # ----------------------
 # PS1="\$(__last_status) ${BBlack}\u@\h ${Yellow}\w${Cyan}\$(__git_ps1)${NC} $ "
-PS1="\$(__last_status) ${BBlack}\w${Cyan}\$(__git_ps1)${NC} $ "
+PS1="\$(__last_status) ${BBlack}\w${Cyan}\$(__git_branch)${NC} $ "
 
 # ----------------------
 # OnLoad
