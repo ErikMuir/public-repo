@@ -1,0 +1,56 @@
+#!/bin/bash
+set -e
+
+print_help () {
+  echo "git-clone-all - Clone all repos from a github account"
+  echo "Usage: git-clone-all <account> [options]..."
+  echo "  arguments:"
+  echo "    account		the name of a github account"
+  echo "  options:"
+  echo "    -p, --path		the destination path (defaults to ./)"
+  echo "    -h, --help		display this help and exit"
+}
+
+print_usage () {
+  echo "Usage: git-clone-all <account_name> [OPTION]..."
+  echo "Try 'git-clone-all --help' for more information."
+}
+
+# Transform long options to short ones
+for arg in "$@"; do
+  shift
+  case "$arg" in
+    "--help") set -- "$@" "-h" ;;
+    "--path") set -- "$@" "-p" ;;
+    *)        set -- "$@" "$arg"
+  esac
+done
+
+# Default behavior
+path="./"
+
+# Parse short options
+OPTIND=1
+while getopts "hp:" opt
+do
+  case "${opt}" in
+    h ) print_usage; exit 0 ;;
+    p ) path="$OPTARG" ;;
+    #\? ) print_usage >&2; exit 1 ;;
+    \? ) print_usage; exit 1 ;;
+  esac
+done
+shift $(expr $OPTIND - 1) # remove options from positional parameters
+
+username=$1
+
+if [ -z "$username" ]; then print_usage; exit 1; fi
+
+echo "Username: $username";
+echo "Path: $path";
+
+repos=$(curl -s "https://api.github.com/users/${username}/repos" | jq "[.[] | [.name, .ssh_url]]" | jq -c ".[]")
+for repo in $repos; do
+  name=$(echo $repo | jq .[0])
+  url=$(echo $repo | jq .[1])
+done
