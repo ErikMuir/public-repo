@@ -16,6 +16,24 @@ print_usage () {
   echo "Try 'git-clone-all --help' for more information."
 }
 
+process_repo () {
+  repo=$1
+  name=$(echo $repo | jq .[0] | xargs)
+  url=$(echo $repo | jq .[1] | xargs)
+  repo_path="${path}${name}"
+  echo ""
+  if [ -d "${repo_path}" ]; then
+    [ $force = false ] && echo "Skipping ${name} - already exists" && return 0
+    rm -rf $repo_path
+  fi
+  git clone $url $repo_path
+}
+
+# Set defaults
+path="./"
+force=false
+
+# Ensure at least one argument or option
 [[ $# -eq 0 ]] && print_usage && exit 1
 
 # Handle required arguments
@@ -23,10 +41,6 @@ if [[ $1 != -* ]]; then
   account=$1
   shift
 fi
-
-# Default behavior
-path="./"
-force=false
 
 # Transform long options to short ones
 for arg in "$@"; do
@@ -51,8 +65,8 @@ do
     : )  echo "Invalid option: $OPTARG requires an argument" 1>&2; exit 1 ;;
   esac
 done
-shift $(expr $OPTIND - 1) # remove options from positional parameters
 
+# Ensure required arguments were provided
 if [ -z "$account" ]; then print_usage; exit 1; fi
 
 # Ensure path has trailing slash
@@ -63,15 +77,7 @@ last_char=${path:path_length-1:1}
 # Get list of repos for account
 repos=$(curl -s "https://api.github.com/users/${account}/repos" | jq "[.[] | [.name, .ssh_url]]" | jq -c ".[]")
 
-# Loop through repos and clone any that don't exist
+# Loop through repos and clone as necessary
 for repo in $repos; do
-  name=$(echo $repo | jq .[0] | xargs)
-  url=$(echo $repo | jq .[1] | xargs)
-  repo_path="${path}${name}"
-  echo ""
-  if [ -d "${repo_path}" ]; then
-    [ $force = false ] && echo "Skipping ${name} - already exists" && continue
-    rm -rf $repo_path
-  fi
-  git clone $url $repo_path
+  process_repo $repo
 done
