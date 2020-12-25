@@ -2,55 +2,76 @@
 set -e
 
 print_help () {
-  echo "git-clone-all - Clone all repos from a github account"
+  echo "Clone all repos from a github account"
   echo "Usage: git-clone-all <account> [options]..."
-  echo "  arguments:"
-  echo "    account		the name of a github account"
+  echo "  <account>		(required) the name of a github account"
   echo "  options:"
   echo "    -p, --path		the destination path (defaults to ./)"
+  echo "    -f, --force		force clone even if folder exists"
   echo "    -h, --help		display this help and exit"
 }
 
 print_usage () {
-  echo "Usage: git-clone-all <account_name> [OPTION]..."
+  echo "Usage: git-clone-all <account> [options]..."
   echo "Try 'git-clone-all --help' for more information."
 }
+
+[[ $# -eq 0 ]] && print_usage && exit 1
+
+# Handle required arguments
+if [[ $1 != -* ]]; then
+  account=$1
+  shift
+fi
+
+# Default behavior
+path="./"
+force=false
 
 # Transform long options to short ones
 for arg in "$@"; do
   shift
   case "$arg" in
-    "--help") set -- "$@" "-h" ;;
-    "--path") set -- "$@" "-p" ;;
-    *)        set -- "$@" "$arg"
+    "--help" )  set -- "$@" "-h" ;;
+    "--path" )  set -- "$@" "-p" ;;
+    "--force" ) set -- "$@" "-f" ;;
+    * )         set -- "$@" "$arg"
   esac
 done
 
-# Default behavior
-path="./"
-
 # Parse short options
 OPTIND=1
-while getopts "hp:" opt
+while getopts ":hp:f" opt
 do
-  case "${opt}" in
-    h ) print_usage; exit 0 ;;
-    p ) path="$OPTARG" ;;
-    #\? ) print_usage >&2; exit 1 ;;
-    \? ) print_usage; exit 1 ;;
+  case ${opt} in
+    h )  print_help; exit 0 ;;
+    p )  path="$OPTARG" ;;
+    f )  force=true ;;
+    \? ) echo "Invalid option: $OPTARG" 1>&2; exit 1 ;;
+    : )  echo "Invalid option: $OPTARG requires an argument" 1>&2; exit 1 ;;
   esac
 done
 shift $(expr $OPTIND - 1) # remove options from positional parameters
 
-username=$1
+if [ -z "$account" ]; then print_usage; exit 1; fi
 
-if [ -z "$username" ]; then print_usage; exit 1; fi
+# Ensure path has trailing slash
+path_length=${#path}
+last_char=${path:path_length-1:1}
+[[ $last_char != "/" ]] && path="${path}/";
 
-echo "Username: $username";
-echo "Path: $path";
+# Get list of repos for account
+repos=$(curl -s "https://api.github.com/users/${account}/repos" | jq "[.[] | [.name, .ssh_url]]" | jq -c ".[]")
 
-repos=$(curl -s "https://api.github.com/users/${username}/repos" | jq "[.[] | [.name, .ssh_url]]" | jq -c ".[]")
+# Loop through repos and clone any that don't exist
 for repo in $repos; do
-  name=$(echo $repo | jq .[0])
-  url=$(echo $repo | jq .[1])
+  name=$(echo $repo | jq .[0] | xargs)
+  url=$(echo $repo | jq .[1] | xargs)
+  repo_path="${path}${name}"
+  echo ""
+  if [ -d "${repo_path}" ]; then
+    [ $force = false ] && echo "Skipping ${name} - already exists" && continue
+    rm -rf $repo_path
+  fi
+  git clone $url $repo_path
 done
