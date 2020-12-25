@@ -1,6 +1,8 @@
+alias grep='grep --color'
+alias ls='ls --color'
 alias ll='ls -la'
 alias reload='source ~/.bashrc'
-alias update='sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get autoremove && sudo apt-get autoclean'
+alias update='sudo aptget update && sudo apt-get upgrade -y && sudo apt-get autoremove && sudo apt-get autoclean'
 alias upgrade='update'
 
 function up() {
