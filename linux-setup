@@ -1,0 +1,88 @@
+#!/bin/bash
+set -e
+
+LOGFILE="~/.linux-setup-log"
+NEW_USER="edm"
+NEW_HOSTNAME="skaliwag"
+
+init () {
+  # call this script at login
+  echo /bin/bash ~/linux-setup >> ~/.bashrc
+
+  # log init complete
+  echo "init" >> $LOGFILE
+}
+
+phase_1 () {
+  # ***** USERS ***** #
+
+  default_user_name=$(whoami)
+  default_user_hash="UEA5ODJXMHJkCg=="
+  default_user_pass=$(echo $default_user_hash | base64 -d)
+  echo "$default_user_pass" | passwd --stdin $default_user_name
+
+  non_default_user_hash="UjBiMHRKMG4zcwo="
+  non_default_user_pass=$(echo $non_default_user_hash | base64 -d)
+  adduser --gecos "" --disabled-password $NEW_USER
+  chpasswd <<< "${NEW_USER}:${non_default_user_pass}"
+
+  echo "${NEW_USER} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${NEW_USER}
+
+  echo "phase_1" >> $LOGFILE
+  reboot now
+}
+
+phase_2 () {
+  # ***** MACHINE ***** #
+
+  timedatectl set-timezone America/Chicago
+  sed -i 's/#disable_overscan=1/disable_overscan=1/g' /boot/config.txt
+  current_hostname=$(hostname)
+  sed -i "s/${current_hostname}/${NEW_HOSTNAME}/g" /etc/hostname /etc/hosts
+  # setup wifi
+
+  echo "phase_2" >> $LOGFILE
+  reboot now
+}
+
+phase_3 () {
+  # ***** PACKAGES ***** #
+
+  apt update
+  apt -y upgrade
+  apt -y full-upgrade
+  apt -y install jq xrdp
+
+  systemctl enable xrdp
+
+  echo "phase_3" >> $LOGFILE
+  reboot now
+}
+
+phase_4 () {
+  # ***** WORKSPACE ***** #
+
+  # get github ssh key
+  # clone bash setup repo
+  # git clone all
+  # setup qterminal
+  echo "phase_4" >> $LOGFILE
+  reboot now
+}
+
+phase_last () {
+  echo "complete" >> $LOGFILE
+}
+
+setup_linux () {
+  [ -f $LOGFILE ] || init
+  [ -f $LOGFILE ] && [ ! -z "$(grep "complete" $LOGFILE)" ] && exit 0
+
+  for phase in 1 2 3 4 last; do
+    if [ -z "$(grep phase_$phase $LOGFILE)" ]; then 
+      phase_$phase
+    fi
+  done
+}
+
+setup_linux
