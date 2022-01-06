@@ -4,11 +4,13 @@ set -e
 print_help () {
   echo "Clone all repos from a github account"
   echo "Usage: git-clone-all <account> [options]..."
-  echo "  <account>		(required) the name of a github account"
+  echo "  <account>   (required) the username of a GitHub account"
+  echo "              (or access token when joined with the --token option)"
   echo "  options:"
-  echo "    -p, --path		the destination path (defaults to ./)"
-  echo "    -f, --force		force clone even if folder exists"
-  echo "    -h, --help		display this help and exit"
+  echo "    -o, --output  the output destination path (defaults to ./)"
+  echo "    -f, --force   force clone even if folder exists"
+  echo "    -t, --token   use the account arg as an access token"
+  echo "    -h, --help    display this help and exit"
 }
 
 print_usage () {
@@ -32,6 +34,7 @@ process_repo () {
 # Set defaults
 path="./"
 force=false
+token=false
 
 # Ensure at least one argument or option
 [[ $# -eq 0 ]] && print_usage && exit 1
@@ -46,21 +49,23 @@ fi
 for arg in "$@"; do
   shift
   case "$arg" in
-    "--help" )  set -- "$@" "-h" ;;
-    "--path" )  set -- "$@" "-p" ;;
-    "--force" ) set -- "$@" "-f" ;;
-    * )         set -- "$@" "$arg"
+    "--help" )    set -- "$@" "-h" ;;
+    "--output" )  set -- "$@" "-o" ;;
+    "--force" )   set -- "$@" "-f" ;;
+    "--token" )   set -- "$@" "-t" ;;
+    * )           set -- "$@" "$arg" ;;
   esac
 done
 
 # Parse short options
 OPTIND=1
-while getopts ":hp:f" opt
+while getopts ":ho:ft" opt
 do
   case ${opt} in
     h )  print_help; exit 0 ;;
-    p )  path="$OPTARG" ;;
+    o )  path="$OPTARG" ;;
     f )  force=true ;;
+    t )  token=true ;;
     \? ) echo "Invalid option: $OPTARG" 1>&2; exit 1 ;;
     : )  echo "Invalid option: $OPTARG requires an argument" 1>&2; exit 1 ;;
   esac
@@ -75,7 +80,11 @@ last_char=${path:path_length-1:1}
 [[ $last_char != "/" ]] && path="${path}/";
 
 # Get list of repos for account
-repos=$(curl -s "https://api.github.com/users/${account}/repos" | jq "[.[] | [.name, .ssh_url]]" | jq -c ".[]")
+if [ $token = false ]; then
+  repos=$(curl -s https://api.github.com/users/${account}/repos | jq "[.[] | [.name, .ssh_url]]" | jq -c ".[]")
+else
+  repos=$(curl -s -H "Authorization: token ${account}" https://api.github.com/user/repos | jq "[.[] | [.name, .ssh_url]]" | jq -c ".[]")
+fi
 
 # Loop through repos and clone as necessary
 for repo in $repos; do
