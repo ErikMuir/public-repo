@@ -1,0 +1,83 @@
+# system
+timedatectl set-timezone America/Chicago
+
+# bash
+cat > ~/.bash_aliases<< EOF
+alias reload="source ~/.bashrc"
+alias uuid='uuidgen | tr "[A-Z]" "[a-z]"'
+
+up () {
+  times=${1:-1}
+  while [ $times -gt 0 ]; do
+    cd ..
+    times=$(( $times - 1 ))
+  done
+}
+
+trump () {
+  curl --silent https://api.whatdoestrumpthink.com/api/v1/quotes/random | jq '.message'
+}
+
+color-help () {
+  echo
+  echo '\e[<typeface>:<color>m'
+  echo
+  echo "Typefaces:"
+  echo "  0 - Normal"
+  echo "  1 - Bright"
+  echo "  2 - Dim"
+  echo "  3 - Underlined"
+  echo
+  echo "Colors:"
+  echo "  30 - Black"
+  echo "  31 - Red"
+  echo "  32 - Green"
+  echo "  33 - Yellow/Brown"
+  echo "  34 - Blue"
+  echo "  35 - Purple"    
+  echo "  36 - Cyan"
+  echo "  37 - Light Grey"
+}
+
+PS1='\e[0;32m[\t] \e[0;36m\u \e[1;35m:: \e[0;33m\h \e[1;35m-> \e[0;32m\w \e[0;31m$(__git_ps1 "<%s> ")\e[1;35m>> \e[0m'
+EOF
+source ~/.bashrc
+
+# apt
+sudo apt update
+sudo apt upgrade -y
+sudo apt dist-upgrade -y
+
+# misc
+sudo apt install jq
+
+# ssh
+sudo apt install openssh-server
+sudo ufw allow ssh
+
+# git
+git config --global init.defaultBranch main
+git config --global user.name "Erik Muir"
+git config --global user.email "erikdmuir@gmail.com"
+
+# nvm/node
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+reload
+nvm install node
+
+# mongodb
+mkdir debs
+cd debs
+wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb 
+curl -O https://repo.mongodb.org/apt/ubuntu/dists/focal/mongodb-org/6.0/multiverse/binary-amd64/mongodb-org-server_6.0.1_amd64.deb
+sudo dpkg -i mongodb-org-server_6.0.1_amd64.deb 
+sudo systemctl start mongod
+sudo systemctl enable mongod
+
+# redis
+curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+sudo apt update
+sudo apt install redis
+
